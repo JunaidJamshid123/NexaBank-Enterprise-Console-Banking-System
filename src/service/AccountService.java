@@ -274,6 +274,33 @@ public class AccountService {
     }
 
     // ═══════════════════════════════════════════════════════════════════
+    //  unfreezeAccount — only ADMIN or TELLER can unfreeze
+    // ═══════════════════════════════════════════════════════════════════
+    public void unfreezeAccount(String accountId, String adminId) throws NexaBankException {
+
+        User user = userRegistry.get(adminId);
+        if (user == null) {
+            throw new UnauthorizedAccessException(adminId, "unfreeze account");
+        }
+        if (!(user instanceof BankAdmin) && !(user instanceof Teller)) {
+            throw new UnauthorizedAccessException(adminId,
+                    "unfreeze account — only ADMIN or TELLER roles are permitted");
+        }
+
+        Account account = findAccountOrThrow(accountId);
+        account.unfreeze();
+
+        pushNotification(account.getOwnerId(),
+                "Account Unfrozen",
+                "Your account %s has been unfrozen. Normal operations have resumed."
+                        .formatted(accountId),
+                NotificationType.ALERT);
+
+        auditService.log("UNFREEZE: Account %s unfrozen by %s (ID: %s)."
+                .formatted(accountId, user.getRole(), adminId));
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
     //  reverseTransaction — ADMIN with superAdmin (level 3) only
     // ═══════════════════════════════════════════════════════════════════
     public Transaction reverseTransaction(String txnId, String adminId) throws NexaBankException {

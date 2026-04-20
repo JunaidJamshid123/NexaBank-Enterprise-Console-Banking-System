@@ -23,7 +23,7 @@ public class CustomerService {
     // ─── Dependencies ────────────────────────────────────────────────
     private final List<Customer> customers = new ArrayList<>();
     private final AccountService accountService;
-    private final LoanService loanService;
+    private LoanService loanService;
     private final AuditService auditService;
 
     // ─── Email validation predicate ──────────────────────────────────
@@ -43,6 +43,10 @@ public class CustomerService {
         this.accountService = accountService;
         this.loanService = loanService;
         this.auditService = auditService;
+    }
+
+    public void setLoanService(LoanService loanService) {
+        this.loanService = loanService;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -208,6 +212,13 @@ public class CustomerService {
     // ═══════════════════════════════════════════════════════════════════
     public List<Customer> getAllCustomers() {
         return Collections.unmodifiableList(customers);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  addCustomer — for seed data / external registration
+    // ═══════════════════════════════════════════════════════════════════
+    public void addCustomer(Customer customer) {
+        customers.add(customer);
     }
 
     // ═══════════════════════════════════════════════════════════════════
